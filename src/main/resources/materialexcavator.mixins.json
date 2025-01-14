@@ -4,13 +4,17 @@
 	"package": "paulevs.materialexcavator.mixin",
 	"compatibilityLevel": "JAVA_17",
 	"mixins": [
-		"PlayerEntityMixin",
-		"ShearsItemMixin",
-		"ToolItemMixin"
+		"common.PlayerEntityMixin",
+		"common.ShearsItemMixin",
+		"common.ToolItemMixin"
 	],
 	"client": [
-		"GameRendererMixin",
-		"InGameMixin"
+		"client.GameRendererMixin",
+		"client.InGameMixin"
+	],
+	"server": [
+		"server.ServerPlayerPacketHandlerAccessor",
+		"server.ServerPacketHandlerMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1

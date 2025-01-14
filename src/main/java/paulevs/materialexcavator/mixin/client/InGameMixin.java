@@ -1,4 +1,4 @@
-package paulevs.materialexcavator.mixin;
+package paulevs.materialexcavator.mixin.client;
 
 import com.llamalad7.mixinextras.sugar.Local;
 import net.minecraft.client.Minecraft;

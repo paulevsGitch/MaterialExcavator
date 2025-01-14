@@ -1,6 +1,1 @@
-key.materialexcavator:toggle=Toggle
-materialexcavator:toggle=Toggle
-key.materialexcavator.toggle=Toggle
-materialexcavator.toggle=Toggle
-key.materialexcavator=Toggle
-materialexcavator=Toggle
+key.materialexcavator.name=Toggle Excavation

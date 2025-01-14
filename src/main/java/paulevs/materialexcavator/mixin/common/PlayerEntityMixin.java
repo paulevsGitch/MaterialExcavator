@@ -1,4 +1,4 @@
-package paulevs.materialexcavator.mixin;
+package paulevs.materialexcavator.mixin.common;
 
 import net.minecraft.entity.living.LivingEntity;
 import net.minecraft.entity.living.player.PlayerEntity;

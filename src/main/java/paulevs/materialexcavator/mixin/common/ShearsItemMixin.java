@@ -1,4 +1,4 @@
-package paulevs.materialexcavator.mixin;
+package paulevs.materialexcavator.mixin.common;
 
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import net.minecraft.entity.living.LivingEntity;

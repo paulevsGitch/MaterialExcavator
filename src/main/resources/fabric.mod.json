@@ -20,8 +20,11 @@
 
 	"environment": "*",
 	"entrypoints": {
+		"stationapi:event_bus": [
+			"paulevs.materialexcavator.listener.CommonListener"
+		],
 		"stationapi:event_bus_client": [
-			"paulevs.materialexcavator.ClientListener"
+			"paulevs.materialexcavator.listener.ClientListener"
 		]
 	},
 	"mixins": [

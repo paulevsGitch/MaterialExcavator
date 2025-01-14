@@ -33,10 +33,15 @@ public class MaterialExcavator {
 	@Environment(EnvType.CLIENT)
 	private static int updateTick;
 	
+	@Environment(EnvType.CLIENT)
+	public static boolean isPresent;
+	
 	public static void updatePositions(int x, int y, int z, BlockState target, ItemStack stack) {
 		MaterialExcavator.target = target;
 		
 		POSITIONS.clear();
+		if (targetPlayer.level.isRemote && !isPresent) return;
+		
 		StationTool tool = (StationTool) stack.getType();
 		if (!target.isIn(tool.getEffectiveBlocks(stack))) return;
 		
@@ -68,7 +73,10 @@ public class MaterialExcavator {
 	
 	public static void breakBlocks(ItemStack stack) {
 		if (targetPlayer == null || !targetPlayer.materialexcavator_isInExcavationMode()) return;
+		
 		Level level = targetPlayer.level;
+		if (level.isRemote) return;
+		
 		for (BlockPos pos : POSITIONS) {
 			BlockState state = level.getBlockState(pos);
 			if (state.getBlock() != target.getBlock()) continue;
@@ -77,19 +85,26 @@ public class MaterialExcavator {
 			state.getBlock().afterBreak(level, targetPlayer, pos.x, pos.y, pos.z, state, meta);
 			level.setBlockStateWithNotify(pos, States.AIR.get());
 			
-			BlockSounds sounds = state.getBlock().sounds;
-			level.playSound(
-				pos.x + 0.5,
-				pos.y + 0.5,
-				pos.z + 0.5,
-				sounds.getBreakSound(),
-				sounds.getVolume() * 0.5F,
-				sounds.getPitch()
-			);
-			
 			if (FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT) {
-				@SuppressWarnings("deprecation") Minecraft minecraft = (Minecraft) FabricLoader.getInstance().getGameInstance();
-				minecraft.particleManager.addBlockBreakParticles(pos.x, pos.y, pos.z, state.getBlock().id, 0);
+				int dx = (int) targetPlayer.x - pos.x;
+				int dy = (int) targetPlayer.y - pos.y;
+				int dz = (int) targetPlayer.z - pos.z;
+				
+				if (dx * dx + dy * dy + dz * dz < 512) {
+					BlockSounds sounds = state.getBlock().sounds;
+					level.playSound(
+						pos.x + 0.5,
+						pos.y + 0.5,
+						pos.z + 0.5,
+						sounds.getBreakSound(),
+						sounds.getVolume() * 0.5F,
+						sounds.getPitch()
+					);
+					
+					@SuppressWarnings("deprecation")
+					Minecraft minecraft = (Minecraft) FabricLoader.getInstance().getGameInstance();
+					minecraft.particleManager.addBlockBreakParticles(pos.x, pos.y, pos.z, state.getBlock().id, 0);
+				}
 			}
 			
 			stack.applyDamage(1, null);
@@ -97,11 +112,13 @@ public class MaterialExcavator {
 				break;
 			}
 		}
+		
 		targetPlayer = null;
 	}
 	
 	@Environment(EnvType.CLIENT)
 	public static boolean renderOutlines(HitResult hit, ItemStack stack, float delta) {
+		if (targetPlayer.level.isRemote && !isPresent) return false;
 		if (!targetPlayer.materialexcavator_isInExcavationMode()) return false;
 		if (stack == null || !(stack.getType() instanceof StationTool)) return false;
 		
