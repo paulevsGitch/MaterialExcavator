@@ -1,0 +1,43 @@
+{
+	"schemaVersion": 1,
+	"id": "materialexcavator",
+	"version": "${version}",
+
+	"name": "MaterialExcavator",
+	"description": "Simple material excavation mod",
+	"authors": [
+		"paulevs"
+	],
+	"contact": {
+		"homepage": "https://github.com/paulevsGitch/MaterialExcavator/releases",
+		"sources": "https://github.com/paulevsGitch/MaterialExcavator",
+		"issues": "https://github.com/paulevsGitch/MaterialExcavator/issues",
+		"discord": "https://discord.gg/qxcP8EjkUC"
+	},
+
+	"license": "MIT",
+	"icon": "assets/materialexcavator/icon.png",
+
+	"environment": "*",
+	"entrypoints": {
+		"stationapi:event_bus_client": [
+			"paulevs.materialexcavator.ClientListener"
+		]
+	},
+	"mixins": [
+		"materialexcavator.mixins.json"
+	],
+
+	"depends": {
+		"minecraft": "1.0.0-beta.7.3",
+		"stationapi": ">=2.0-alpha.3"
+	},
+	
+	"custom": {
+		"loom:injected_interfaces": {
+			"net/minecraft/class_54": [
+				"paulevs/materialexcavator/ExcavatorPlayer"
+			]
+		}
+	}
+}

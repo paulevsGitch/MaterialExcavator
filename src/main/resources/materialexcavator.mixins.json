@@ -1,0 +1,18 @@
+{
+	"required": true,
+	"minVersion": "0.8",
+	"package": "paulevs.materialexcavator.mixin",
+	"compatibilityLevel": "JAVA_17",
+	"mixins": [
+		"PlayerEntityMixin",
+		"ShearsItemMixin",
+		"ToolItemMixin"
+	],
+	"client": [
+		"GameRendererMixin",
+		"InGameMixin"
+	],
+	"injectors": {
+		"defaultRequire": 1
+	}
+}
