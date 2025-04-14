@@ -134,14 +134,14 @@ public class MaterialExcavator {
 		return true;
 	}
 	
-	public static float getStrength(float strength) {
+	public static float scaleSpeed(float speed) {
 		if (targetPlayer != null && targetPlayer.materialexcavator_isInExcavationMode() && POSITIONS.size() > 1) {
 			ItemStack stack = targetPlayer.getHeldItem();
 			if (stack != null && stack.getType() instanceof StationTool && stack.getDamage() < stack.getType().getMaxDamage(stack)) {
-				strength /= POSITIONS.size();//Math.min(POSITIONS.size() * 0.5F + 0.5F, 10.0F);
+				speed /= POSITIONS.size();//Math.min(POSITIONS.size() * 0.5F + 0.5F, 10.0F);
 			}
 		}
-		return strength;
+		return speed;
 	}
 	
 	@Environment(EnvType.CLIENT)

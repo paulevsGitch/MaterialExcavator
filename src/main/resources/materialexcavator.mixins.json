@@ -4,6 +4,7 @@
 	"package": "paulevs.materialexcavator.mixin",
 	"compatibilityLevel": "JAVA_17",
 	"mixins": [
+		"common.ToolEffectivenessImplMixin",
 		"common.PlayerEntityMixin",
 		"common.ShearsItemMixin",
 		"common.ToolItemMixin"

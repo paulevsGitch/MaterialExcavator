@@ -28,7 +28,7 @@ public abstract class ToolItemMixin implements StationItem, StationTool {
 	
 	@ModifyReturnValue(method = "getStrengthOnBlock", at = @At("RETURN"))
 	private float materialexcavator_changeStrength(float original) {
-		return MaterialExcavator.getStrength(original);
+		return MaterialExcavator.scaleSpeed(original);
 	}
 	
 	@Inject(method = "postMine", at = @At("HEAD"))
