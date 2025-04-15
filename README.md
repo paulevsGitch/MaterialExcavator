@@ -1,7 +1,7 @@
 <table style="margin: 0 auto;">
 	<tbody>
 		<tr>
-			<td style="text-align: center; width: 200px"><img src="src/main/resources/assets/materialexcavator/icon.png" alt=""/></td>		
+			<td style="text-align: center; width: 200px"><img src="src/main/resources/assets/materialexcavator/icon.png" alt="" style="width: 100%"/></td>		
 			<td>
 				<h2 style="text-align: left;">Material Excavator</h2>
 				<a href="https://jitpack.io/#paulevsGitch/MaterialExcavator"><img src="https://jitpack.io/v/paulevsGitch/MaterialExcavator.svg" alt=""></a>
