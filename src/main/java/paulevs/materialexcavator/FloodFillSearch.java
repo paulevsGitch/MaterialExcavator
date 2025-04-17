@@ -4,13 +4,18 @@ import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
+import it.unimi.dsi.fastutil.objects.Reference2ReferenceOpenHashMap;
 import net.minecraft.level.Level;
 import net.minecraft.util.maths.BlockPos;
 import net.modificationstation.stationapi.api.block.BlockState;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class FloodFillSearch {
+	private static final Map<BlockState, List<Set<BlockState>>> PATTERNS = new Reference2ReferenceOpenHashMap<>();
 	private static final IntSet POSITIONS = new IntOpenHashSet();
 	private static final IntList[] BUFFERS = new IntList[] {
 		new IntArrayList(),
@@ -22,6 +27,14 @@ public class FloodFillSearch {
 	private static int centerY;
 	private static int centerZ;
 	
+	protected static void registerPattern(Set<BlockState> pattern) {
+		if (pattern.size() < 2) return;
+		for (BlockState state : pattern) {
+			List<Set<BlockState>> list = PATTERNS.computeIfAbsent(state, s -> new ArrayList<>());
+			list.add(pattern);
+		}
+	}
+	
 	public static void getBlocks(Level level, int x, int y, int z, BlockState target, int radius, List<BlockPos> output) {
 		centerX = x - 512;
 		centerY = y - 512;
@@ -32,6 +45,8 @@ public class FloodFillSearch {
 		startPositions.add(getIndex(x, y, z));
 		
 		output.add(new BlockPos(x, y, z));
+		
+		List<Set<BlockState>> patterns = PATTERNS.get(target);
 		
 		while (!startPositions.isEmpty()) {
 			bufferIndex = (byte) ((bufferIndex + 1) & 1);
@@ -53,7 +68,8 @@ public class FloodFillSearch {
 					if (Math.abs(pz - z) > radius) continue;
 					int leafIndex = getIndex(px, py, pz);
 					if (POSITIONS.contains(leafIndex)) continue;
-					if (level.getBlockState(px, py, pz).getBlock() != target.getBlock()) continue;
+					BlockState state = level.getBlockState(px, py, pz);
+					if (state.getBlock() != target.getBlock() && !isInPattern(state, patterns)) continue;
 					output.add(new BlockPos(px, py, pz));
 					endPositions.add(leafIndex);
 					POSITIONS.add(leafIndex);
@@ -64,6 +80,15 @@ public class FloodFillSearch {
 		}
 		
 		POSITIONS.clear();
+	}
+	
+	private static boolean isInPattern(BlockState state, List<Set<BlockState>> patterns) {
+		if (patterns != null) {
+			for (Set<BlockState> pattern : patterns) {
+				if (pattern.contains(state)) return true;
+			}
+		}
+		return false;
 	}
 	
 	private static int getIndex(int x, int y, int z) {

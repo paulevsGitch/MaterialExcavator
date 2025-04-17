@@ -18,11 +18,13 @@ import net.minecraft.util.maths.Vec3D;
 import net.modificationstation.stationapi.api.block.BlockState;
 import net.modificationstation.stationapi.api.block.States;
 import net.modificationstation.stationapi.api.item.tool.StationTool;
+import net.modificationstation.stationapi.api.util.API;
 import net.modificationstation.stationapi.api.util.math.MathHelper;
 import org.lwjgl.opengl.GL11;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 public class MaterialExcavator {
 	private static final List<Line> LINES = new ArrayList<>();
@@ -35,6 +37,15 @@ public class MaterialExcavator {
 	
 	@Environment(EnvType.CLIENT)
 	public static boolean isPresent;
+	
+	/**
+	 * Registers a pattern of blocks that will be handled together on digging (like tree with branches).
+	 * @param pattern {@link Set} of {@link BlockState}
+	 */
+	@API
+	public static void registerPattern(Set<BlockState> pattern) {
+		FloodFillSearch.registerPattern(pattern);
+	}
 	
 	public static void updatePositions(int x, int y, int z, BlockState target, ItemStack stack) {
 		MaterialExcavator.target = target;
@@ -79,7 +90,7 @@ public class MaterialExcavator {
 		
 		for (BlockPos pos : POSITIONS) {
 			BlockState state = level.getBlockState(pos);
-			if (state.getBlock() != target.getBlock()) continue;
+			if (state.isAir()) continue;
 			
 			int meta = level.getBlockMeta(pos.x, pos.y, pos.z);
 			state.getBlock().afterBreak(level, targetPlayer, pos.x, pos.y, pos.z, state, meta);
