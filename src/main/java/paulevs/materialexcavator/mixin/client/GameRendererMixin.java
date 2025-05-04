@@ -25,4 +25,16 @@ public class GameRendererMixin {
 			original.call(renderer, player, hit, flag, stack, delta);
 		}
 	}
+	
+	@WrapOperation(method = "delta", at = @At(
+		value = "INVOKE",
+		target = "Lnet/minecraft/client/render/LevelRenderer;renderBlockBreaking(Lnet/minecraft/entity/living/player/PlayerEntity;Lnet/minecraft/util/hit/HitResult;ILnet/minecraft/item/ItemStack;F)V"
+	))
+	private void materialexcavator_renderBreaking(
+		LevelRenderer renderer, PlayerEntity player, HitResult hit, int flag, ItemStack stack, float delta, Operation<Void> original
+	) {
+		if (!MaterialExcavator.renderBreaking(renderer, player, hit, flag, stack, delta, original)) {
+			original.call(renderer, player, hit, flag, stack, delta);
+		}
+	}
 }

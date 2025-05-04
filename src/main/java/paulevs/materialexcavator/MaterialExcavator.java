@@ -1,5 +1,6 @@
 package paulevs.materialexcavator;
 
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -7,6 +8,7 @@ import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockSounds;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.render.LevelRenderer;
 import net.minecraft.client.render.Tessellator;
 import net.minecraft.entity.living.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
@@ -20,6 +22,7 @@ import net.modificationstation.stationapi.api.block.States;
 import net.modificationstation.stationapi.api.item.tool.StationTool;
 import net.modificationstation.stationapi.api.util.API;
 import net.modificationstation.stationapi.api.util.math.MathHelper;
+import net.modificationstation.stationapi.api.util.math.MutableBlockPos;
 import org.lwjgl.opengl.GL11;
 
 import java.util.ArrayList;
@@ -29,6 +32,7 @@ import java.util.Set;
 public class MaterialExcavator {
 	private static final List<Line> LINES = new ArrayList<>();
 	private static final List<BlockPos> POSITIONS = new ArrayList<>();
+	public static final MutableBlockPos START_POS = new MutableBlockPos();
 	public static PlayerEntity targetPlayer;
 	private static BlockState target;
 	
@@ -61,6 +65,7 @@ public class MaterialExcavator {
 		int maxCount = (miningLevel << 4) + 16;
 		maxCount = Math.min(maxCount, stack.getType().getMaxDamage(stack) - stack.getDamage());
 		
+		START_POS.set(x, y, z);
 		FloodFillSearch.getBlocks(targetPlayer.level, x, y, z, target, radius, POSITIONS);
 		if (POSITIONS.size() > maxCount) {
 			POSITIONS.sort((p1, p2) -> {
@@ -145,6 +150,27 @@ public class MaterialExcavator {
 		return true;
 	}
 	
+	public static boolean renderBreaking(LevelRenderer renderer, PlayerEntity player, HitResult hit, int flag, ItemStack stack, float delta, Operation<Void> original) {
+		if (player.level.isRemote && !isPresent) return false;
+		if (!player.materialexcavator_isInExcavationMode()) return false;
+		if (POSITIONS.isEmpty()) return false;
+		
+		int x = hit.x;
+		int y = hit.y;
+		int z = hit.z;
+		for (BlockPos pos : POSITIONS) {
+			hit.x = pos.x;
+			hit.y = pos.y;
+			hit.z = pos.z;
+			original.call(renderer, player, hit, flag, stack, delta);
+		}
+		hit.x = x;
+		hit.y = y;
+		hit.z = z;
+		
+		return true;
+	}
+	
 	public static float scaleSpeed(float speed) {
 		if (targetPlayer != null && targetPlayer.materialexcavator_isInExcavationMode() && POSITIONS.size() > 1) {
 			ItemStack stack = targetPlayer.getHeldItem();
@@ -158,7 +184,6 @@ public class MaterialExcavator {
 	@Environment(EnvType.CLIENT)
 	private static void updateOutlines(int x, int y, int z) {
 		LINES.clear();
-		addBoundingBox(x, y, z);
 		for (BlockPos pos : POSITIONS) {
 			addBoundingBox(pos.x, pos.y, pos.z);
 		}

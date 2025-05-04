@@ -42,9 +42,11 @@ public class FloodFillSearch {
 		
 		IntList startPositions = BUFFERS[bufferIndex];
 		startPositions.clear();
-		startPositions.add(getIndex(x, y, z));
 		
 		output.add(new BlockPos(x, y, z));
+		int startIndex = getIndex(x, y, z);
+		startPositions.add(startIndex);
+		POSITIONS.add(startIndex);
 		
 		List<Set<BlockState>> patterns = PATTERNS.get(target);
 		
