@@ -11,6 +11,8 @@
 		"common.LevelMixin"
 	],
 	"client": [
+		"client.SinglePlayerClientInteractionManagerMixin",
+		"client.MultiPlayerClientInteractionManagerMixin",
 		"client.GameRendererMixin",
 		"client.InGameMixin"
 	],

@@ -12,10 +12,11 @@ import paulevs.materialexcavator.MaterialExcavator;
 
 @Mixin(Level.class)
 public class LevelMixin {
-	/*@Inject(method = "spawnEntity", at = @At("HEAD"))
+	@Inject(method = "spawnEntity", at = @At("HEAD"))
 	private void materialexcavator_spawnEntity(Entity entity, CallbackInfoReturnable<Boolean> info) {
-		if (entity.level.isRemote || !(entity instanceof ItemEntity)) return;
+		if (!MaterialExcavator.TELEPORT_ITEMS.getValue()) return;
+		if (!MaterialExcavator.isBreaking() || entity.level.isRemote || !(entity instanceof ItemEntity)) return;
 		BlockPos pos = MaterialExcavator.START_POS;
 		entity.setPosition(pos.x, pos.y, pos.z);
-	}*/
+	}
 }

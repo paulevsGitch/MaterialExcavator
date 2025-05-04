@@ -24,17 +24,46 @@ import net.modificationstation.stationapi.api.util.API;
 import net.modificationstation.stationapi.api.util.math.MathHelper;
 import net.modificationstation.stationapi.api.util.math.MutableBlockPos;
 import org.lwjgl.opengl.GL11;
+import paulevs.materialexcavator.config.Config;
+import paulevs.materialexcavator.config.ConfigEntry;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
 public class MaterialExcavator {
-	private static final List<Line> LINES = new ArrayList<>();
-	private static final List<BlockPos> POSITIONS = new ArrayList<>();
 	public static final MutableBlockPos START_POS = new MutableBlockPos();
+	private static final List<BlockPos> POSITIONS = new ArrayList<>();
+	private static final List<Line> LINES = new ArrayList<>();
+	
+	private static final Config CONFIG = new Config("material_excavator");
+	
+	protected static final ConfigEntry<Boolean> EXTENDED_AREA = CONFIG.addEntry(
+		"extendedArea",
+		true,
+		"Extends search area to 26 blocks around target (Include diagonals),",
+		"will check only 6 neighbours on sides when disabled",
+		"default is true"
+	);
+	
+	public static final ConfigEntry<Boolean> TELEPORT_ITEMS = CONFIG.addEntry(
+		"teleportItems",
+		false,
+		"Teleport all dropped items to the target block position",
+		"default is false"
+	);
+	
+	public static final ConfigEntry<Boolean> SCALE_SPEED = CONFIG.addEntry(
+		"scaleSpeed",
+		true,
+		"Scales mining speed depending on block amount",
+		"default is true"
+	);
+	
 	public static PlayerEntity targetPlayer;
 	private static BlockState target;
+	private static boolean breaking;
+	public static boolean startBreaking;
 	
 	@Environment(EnvType.CLIENT)
 	private static int updateTick;
@@ -93,6 +122,7 @@ public class MaterialExcavator {
 		Level level = targetPlayer.level;
 		if (level.isRemote) return;
 		
+		breaking = true;
 		for (BlockPos pos : POSITIONS) {
 			BlockState state = level.getBlockState(pos);
 			if (state.isAir()) continue;
@@ -129,6 +159,7 @@ public class MaterialExcavator {
 			}
 		}
 		
+		breaking = false;
 		targetPlayer = null;
 	}
 	
@@ -172,13 +203,18 @@ public class MaterialExcavator {
 	}
 	
 	public static float scaleSpeed(float speed) {
+		if (!MaterialExcavator.SCALE_SPEED.getValue()) return speed;
 		if (targetPlayer != null && targetPlayer.materialexcavator_isInExcavationMode() && POSITIONS.size() > 1) {
 			ItemStack stack = targetPlayer.getHeldItem();
 			if (stack != null && stack.getType() instanceof StationTool && stack.getDamage() < stack.getType().getMaxDamage(stack)) {
-				speed /= POSITIONS.size();//Math.min(POSITIONS.size() * 0.5F + 0.5F, 10.0F);
+				speed /= POSITIONS.size();
 			}
 		}
 		return speed;
+	}
+	
+	public static boolean isBreaking() {
+		return breaking;
 	}
 	
 	@Environment(EnvType.CLIENT)
@@ -189,6 +225,7 @@ public class MaterialExcavator {
 		}
 	}
 	
+	@Environment(EnvType.CLIENT)
 	private static void addBoundingBox(int x, int y, int z) {
 		Block block = targetPlayer.level.getBlockState(x, y, z).getBlock();
 		block.updateBoundingBox(targetPlayer.level, x, y, z);
@@ -246,6 +283,7 @@ public class MaterialExcavator {
 		GL11.glEnable(GL11.GL_TEXTURE_2D);
 	}
 	
+	@Environment(EnvType.CLIENT)
 	private static void addLine(double x1, double y1, double z1, double x2, double y2, double z2) {
 		Line line = new Line(Vec3D.make(x1, y1, z1), Vec3D.make(x2, y2, z2));
 		int index = LINES.indexOf(line);
@@ -272,5 +310,9 @@ public class MaterialExcavator {
 		private static boolean isSameDouble(double a, double b) {
 			return Math.abs(a - b) < 0.005;
 		}
+	}
+	
+	public static void saveConfig() {
+		CONFIG.save();
 	}
 }

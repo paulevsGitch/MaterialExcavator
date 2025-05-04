@@ -8,6 +8,7 @@ import it.unimi.dsi.fastutil.objects.Reference2ReferenceOpenHashMap;
 import net.minecraft.level.Level;
 import net.minecraft.util.maths.BlockPos;
 import net.modificationstation.stationapi.api.block.BlockState;
+import net.modificationstation.stationapi.api.util.math.Direction;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -60,21 +61,41 @@ public class FloodFillSearch {
 				int sy = getY(index);
 				int sz = getZ(index);
 				
-				for (byte i = 0; i < 27; i++) {
-					if (i == 13) continue;
-					int px = sx + (i % 3) - 1;
-					if (Math.abs(px - x) > radius) continue;
-					int py = sy + ((i / 3) % 3) - 1;
-					if (Math.abs(py - y) > radius) continue;
-					int pz = sz + i / 9 - 1;
-					if (Math.abs(pz - z) > radius) continue;
-					int leafIndex = getIndex(px, py, pz);
-					if (POSITIONS.contains(leafIndex)) continue;
-					BlockState state = level.getBlockState(px, py, pz);
-					if (state.getBlock() != target.getBlock() && !isInPattern(state, patterns)) continue;
-					output.add(new BlockPos(px, py, pz));
-					endPositions.add(leafIndex);
-					POSITIONS.add(leafIndex);
+				if (MaterialExcavator.EXTENDED_AREA.getValue()) {
+					for (byte i = 0; i < 27; i++) {
+						if (i == 13) continue;
+						int px = sx + (i % 3) - 1;
+						if (Math.abs(px - x) > radius) continue;
+						int py = sy + ((i / 3) % 3) - 1;
+						if (Math.abs(py - y) > radius) continue;
+						int pz = sz + i / 9 - 1;
+						if (Math.abs(pz - z) > radius) continue;
+						int leafIndex = getIndex(px, py, pz);
+						if (POSITIONS.contains(leafIndex)) continue;
+						BlockState state = level.getBlockState(px, py, pz);
+						if (state.getBlock() != target.getBlock() && !isInPattern(state, patterns)) continue;
+						output.add(new BlockPos(px, py, pz));
+						endPositions.add(leafIndex);
+						POSITIONS.add(leafIndex);
+					}
+				}
+				else {
+					for (byte i = 0; i < 6; i++) {
+						Direction dir = Direction.byId(i);
+						int px = sx + dir.getOffsetX();
+						if (Math.abs(px - x) > radius) continue;
+						int py = sy + dir.getOffsetY();
+						if (Math.abs(py - y) > radius) continue;
+						int pz = sz + dir.getOffsetZ();
+						if (Math.abs(pz - z) > radius) continue;
+						int leafIndex = getIndex(px, py, pz);
+						if (POSITIONS.contains(leafIndex)) continue;
+						BlockState state = level.getBlockState(px, py, pz);
+						if (state.getBlock() != target.getBlock() && !isInPattern(state, patterns)) continue;
+						output.add(new BlockPos(px, py, pz));
+						endPositions.add(leafIndex);
+						POSITIONS.add(leafIndex);
+					}
 				}
 			}
 			

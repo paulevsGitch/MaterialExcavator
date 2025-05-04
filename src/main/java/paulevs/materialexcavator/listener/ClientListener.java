@@ -28,6 +28,7 @@ public class ClientListener {
 			if (minecraft.level.isRemote && !MaterialExcavator.isPresent) return;
 			boolean mode = !minecraft.player.materialexcavator_isInExcavationMode();
 			minecraft.player.materialexcavator_setExcavationMode(mode);
+			if (mode) MaterialExcavator.startBreaking = true;
 			if (minecraft.level.isRemote) {
 				PacketHelper.send(new ExcavatorModePacket(mode));
 			}
