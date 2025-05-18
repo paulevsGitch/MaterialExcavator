@@ -27,10 +27,13 @@ public class ClientListener {
 			Minecraft minecraft = (Minecraft) FabricLoader.getInstance().getGameInstance();
 			if (minecraft.level.isRemote && !MaterialExcavator.isPresent) return;
 			boolean mode = !minecraft.player.materialexcavator_isInExcavationMode();
-			minecraft.player.materialexcavator_setExcavationMode(mode);
-			if (mode) MaterialExcavator.startBreaking = true;
 			if (minecraft.level.isRemote) {
+				System.out.println("Sending packet!");
 				PacketHelper.send(new ExcavatorModePacket(mode));
+			}
+			else {
+				minecraft.player.materialexcavator_setExcavationMode(mode);
+				if (mode) MaterialExcavator.startBreaking = true;
 			}
 		}
 	}
